@@ -1,0 +1,109 @@
+[project]
+name = "drone_controllers"
+version = "0.0.1"
+description = "Controllers for quadrotor drones."
+readme = "README.md"
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+]
+
+dependencies = [
+    "numpy>=2.0.0",
+    "array-api-compat",
+    "array-api-extra",
+    "array-api-typing @ git+https://github.com/data-apis/array-api-typing", # TODO: Replace with array-api-typing from pip once released
+    "scipy @ git+https://github.com/amacati/scipy.git@broadcasting",               # TODO: Replace with scipy 1.17 once released
+]
+
+[project.optional-dependencies]
+
+[tool.setuptools.packages]
+find = {}
+
+[tool.setuptools.package-data]
+drone_controllers = ["data/*.xml"]
+
+[tool.pytest.ini_options]
+markers = ["unit", "integration"]
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".git",
+    ".git-rewrite",
+    ".ipynb_checkpoints",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "build",
+    "dist",
+    "site-packages",
+    "venv",
+    "docs/conf.py",
+]
+
+line-length = 100
+indent-width = 4
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "D", "TCH", "ANN"]
+ignore = ["ANN401"]
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D100", "D103", "D104"]
+"examples/*" = ["D100", "D103"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-annotations]
+suppress-dummy-args = true
+suppress-none-returning = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = true
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+drone_controllers = { path = ".", editable = true }
+
+[tool.pixi.feature.tests.dependencies]
+pytest = ">=8.4.1"
+array-api-strict = ">=2.4.1,<2.5"
+numpy = ">=1.22.0"
+
+[tool.pixi.feature.tests.tasks]
+tests = { cmd = "pytest -v", description = "Run tests" }
+
+[tool.pixi.environments]
+default = { solve-group = "default" }
+tests = { features = ["tests"], solve-group = "default" }
+
+[tool.pixi.dependencies]
+gcc = ">=15.1.0,<15.2"
+cxx-compiler = ">=1.0.0,<2"
+gfortran = ">=15.1.0,<15.2"
+openblas = ">=0.3.30,<0.4"
+ruff = "*"

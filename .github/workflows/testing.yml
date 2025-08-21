@@ -1,0 +1,27 @@
+name: Testing
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pixi (installs pixi + caches envs) # https://github.com/marketplace/actions/setup-pixi
+        uses: prefix-dev/setup-pixi@v0.9.0            # pin the action version
+        with:
+          pixi-version: v0.49.0                       # pin the pixi binary version (optional)
+          cache: true                                 # enable caching of installed envs
+          # only write new caches on main pushes (optional)
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          # ensure the 'test' environment(s) are installed
+          environments: test
+          # don't activate env (we'll call pixi run -e test explicitly)
+          activate-environment: false
+          # prefer using existing lockfile if present (faster, deterministic)
+          locked: true
+
+      - name: Verify pixi and run tests
+        run: |
+          pixi --version
+          pixi run -e test pytest
