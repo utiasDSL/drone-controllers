@@ -1,10 +1,10 @@
-$$
+```math
 \huge \displaystyle u = K_p e + K_i \int e \, dt + K_d \frac{de}{dt}
-$$
+```
 
 ---
 
-Drone controllers @ LSY. Contains numeric (ArrayAPI, i.e., NumPy, JAX, ...) for various onboard drone controllers.
+Drone controllers @ LSY. Contains arrayAPI (i.e., NumPy, JAX, Torch...) implementations for various onboard drone controllers.
 
 [![Python Version]][Python Version URL] [![Ruff Check]][Ruff Check URL] [![Tests]][Tests URL]
 
