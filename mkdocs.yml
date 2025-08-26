@@ -1,0 +1,102 @@
+site_name: Drone Controllers
+site_description: Controllers for quadrotor drones
+site_url: https://utiasdsl.github.io/drone-controllers/
+repo_url: https://github.com/utiasDSL/drone-controllers
+repo_name: utiasDSL/drone-controllers
+
+theme:
+  name: material
+  logo: img/logo_white.png
+  favicon: img/logo_white.png
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quick-start.md
+  - Concepts:
+    - Overview: concepts/overview.md
+    - Control Theory: concepts/control-theory.md
+    - Drone Dynamics: concepts/drone-dynamics.md
+    - Controller Design: concepts/controller-design.md
+  - API Reference:
+    - Core: api/core.md
+    - Drones: api/drones.md
+    - Transform: api/transform.md
+    - Mellinger: api/mellinger.md
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: google
+            members_order: source
+            show_root_heading: true
+            show_source: false
+            show_bases: false
+            merge_init_into_class: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.arithmatex:
+      generic: true
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/utiasDSL/drone-controllers
+
+extra_css:
+  - stylesheets/extra.css

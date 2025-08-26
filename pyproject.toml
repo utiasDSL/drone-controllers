@@ -97,9 +97,22 @@ numpy = ">=1.22.0"
 [tool.pixi.feature.tests.tasks]
 tests = { cmd = "pytest -v", description = "Run tests" }
 
+[tool.pixi.feature.docs.dependencies]
+mkdocs = ">=1.5.3"
+mkdocs-material = ">=9.4.0"
+mkdocstrings = ">=0.24.0"
+mkdocstrings-python = ">=1.7.0"
+mkdocs-gen-files = ">=0.5.0"
+mkdocs-literate-nav = ">=0.6.0"
+
+[tool.pixi.feature.docs.tasks]
+docs-serve = { cmd = "mkdocs serve", description = "Serve docs locally" }
+docs-build = { cmd = "mkdocs build", description = "Build docs" }
+
 [tool.pixi.environments]
 default = { solve-group = "default" }
 tests = { features = ["tests"], solve-group = "default" }
+docs = { features = ["docs"], solve-group = "default" }
 
 [tool.pixi.dependencies]
 gcc = ">=15.1.0,<15.2"
