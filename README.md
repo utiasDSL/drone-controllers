@@ -6,7 +6,7 @@
 
 Drone controllers @ LSY. Contains arrayAPI (i.e., NumPy, JAX, Torch...) implementations for various onboard drone controllers.
 
-[![Python Version]][Python Version URL] [![Ruff Check]][Ruff Check URL] [![Tests]][Tests URL]
+[![Python Version]][Python Version URL] [![Ruff Check]][Ruff Check URL] [![Tests]][Tests URL] [![Docs]][Docs URL]
 
 [Python Version]: https://img.shields.io/badge/python-3.10+-blue.svg
 [Python Version URL]: https://www.python.org
@@ -16,6 +16,9 @@ Drone controllers @ LSY. Contains arrayAPI (i.e., NumPy, JAX, Torch...) implemen
 
 [Tests]: https://github.com/utiasDSL/drone-controllers/actions/workflows/testing.yml/badge.svg
 [Tests URL]: https://github.com/utiasDSL/drone-controllers/actions/workflows/testing.yml
+
+[Docs]: https://github.com/utiasDSL/drone-controllers/actions/workflows/docs.yml/badge.svg
+[Docs URL]: https://utiasdsl.github.io/drone-controllers/
 
 ## Installation
 
