@@ -18,7 +18,7 @@ dependencies = [
     "array-api-compat",
     "array-api-extra",
     "array-api-typing @ git+https://github.com/data-apis/array-api-typing", # TODO: Replace with array-api-typing from pip once released
-    "scipy @ git+https://github.com/amacati/scipy.git@broadcasting",               # TODO: Replace with scipy 1.17 once released
+    "scipy @ git+https://github.com/scipy/scipy.git@4cb83b6",               # TODO: Replace with scipy 1.17 once released
 ]
 
 [project.optional-dependencies]
@@ -58,7 +58,7 @@ indent-width = 4
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "I", "D", "TCH", "ANN"]
+select = ["E4", "E7", "E9", "F", "I", "D", "TCH", "ANN", "T20"]
 ignore = ["ANN401"]
 fixable = ["ALL"]
 unfixable = []
