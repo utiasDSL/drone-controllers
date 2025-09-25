@@ -7,12 +7,13 @@ pwm_min = 20000.0
 pwm_max = 65535.0
 torque_pwm_max = [32000.0, 32000.0, 32000.0]
 L = 0.03253
-KF = 3.16e-10  # TODO: Check what the firmware uses
-KM = 7.94e-12
+rpm2thrust = [0.0, 0.0, 3.16e-10] # TODO
+rpm2torque = [0.0, 0.0, 7.94e-12] # TODO
+thrust2torque = 0.002513 # TODO
 mixing_matrix = [
-    [-1.0, -1.0, 1.0, 1.0],
+    [-1.0, -1.0,  1.0,  1.0],
     [-1.0,  1.0,  1.0, -1.0],
-    [-1.0, 1.0,  -1.0, 1.0]
+    [-1.0,  1.0, -1.0,  1.0]
 ]
 gravity_vec = [0.0, 0.0, -9.81]
 
@@ -29,31 +30,64 @@ ki_m = [0.0, 0.0, 500.0]
 kd_omega = [200.0, 200.0, 0.0]
 int_err_max = [1.0, 1.0, 1500.0]
 
-[cf2x_B500.core]
-mass = 0.034
+[cf2x_P250.core]
+mass = 0.033
+mass_thrust = 132000
+thrust_min = 0.02
+thrust_max = 0.1125
+pwm_min = 20000.0
+pwm_max = 65535.0
+torque_pwm_max = [32000.0, 32000.0, 32000.0]
+L = 0.03253
+rpm2thrust = [0.0, 0.0, 5.792654323957372e-10] # TODO
+rpm2torque = [0.0, 0.0, 7.94e-12] # TODO
+thrust2torque = 0.001371 # TODO
+mixing_matrix = [
+    [-1.0, -1.0,  1.0,  1.0],
+    [-1.0,  1.0,  1.0, -1.0],
+    [-1.0,  1.0, -1.0,  1.0]
+]
+gravity_vec = [0.0, 0.0, -9.81]
+
+[cf2x_P250.state2attitude]
+kp = [0.4, 0.4, 1.25]
+kd = [0.2, 0.2, 0.5]
+ki = [0.05, 0.05, 0.05]
+int_err_max = [2.0, 2.0, 0.4]
+
+[cf2x_P250.attitude2force_torque]
+kR = [70000.0, 70000.0, 60000.0]
+kw = [20000.0, 20000.0, 12000.0]
+ki_m = [0.0, 0.0, 500.0]
+kd_omega = [200.0, 200.0, 0.0]
+int_err_max = [1.0, 1.0, 1500.0]
+
+[cf21B_500.core]
+mass = 0.04338
+gravity_vec = [0.0, 0.0, -9.81]
 mass_thrust = 132000
 thrust_min = 0.03
 thrust_max = 0.18
 pwm_min = 20000.0
 pwm_max = 65535.0
 torque_pwm_max = [32000.0, 32000.0, 32000.0]
-L = 0.03253
-KF = 3.16e-10  # TODO: Check what the firmware uses
-KM = 7.94e-12
+L = 0.035355
+rpm2thrust = [0.0, -8.357406697944084e-07, 4.716909960828207e-10]
+rpm2torque = [0.0, 2.435151264350409e-09, 2.424629050055297e-12]
+thrust2torque = 0.00593893393599368
 mixing_matrix = [
-    [-1.0, -1.0, 1.0, 1.0],
+    [-1.0, -1.0,  1.0,  1.0],
     [-1.0,  1.0,  1.0, -1.0],
-    [-1.0, 1.0,  -1.0, 1.0]
+    [-1.0,  1.0, -1.0,  1.0]
 ]
-gravity_vec = [0.0, 0.0, -9.81]
 
-[cf2x_B500.state2attitude]
+[cf21B_500.state2attitude]
 kp = [0.4, 0.4, 1.25]
 kd = [0.2, 0.2, 0.5]
 ki = [0.05, 0.05, 0.05]
 int_err_max = [2.0, 2.0, 0.4]
 
-[cf2x_B500.attitude2force_torque]
+[cf21B_500.attitude2force_torque]
 kR = [70000.0, 70000.0, 60000.0]
 kw = [20000.0, 20000.0, 12000.0]
 ki_m = [0.0, 0.0, 500.0]

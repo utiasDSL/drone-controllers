@@ -153,8 +153,7 @@ def attitude2force_torque(
     pwm_min: float,
     pwm_max: float,
     L: float,
-    KM: float,
-    KF: float,
+    thrust2torque: float,
     mixing_matrix: Array,
 ) -> tuple[Array, Array, Array]:
     """Compute the attitude to desired force-torque part of the Mellinger controller.
@@ -186,8 +185,7 @@ def attitude2force_torque(
         prev_ang_vel: Previous angular velocity in rad/s.
         prev_ang_vel_des: Previous angular velocity command in rad/s.
         L: Distance from the center of the quadrotor to the center of the rotor in m.
-        KM: Torque constant (Nm/RPM).
-        KF: Force constant (N/RPM).
+        thrust2torque: Conversion factor (m).
         mixing_matrix: Mixing matrix for the motor forces with shape (4, 3).
 
     Returns:
@@ -252,7 +250,7 @@ def attitude2force_torque(
     # controllers within drone_models, we still want to return SI forces and torques. We thus need
     # to convert the legacy output to SI units.
     # l. 310 ff
-    torque_des = (mixing_matrix @ motor_forces[..., None])[..., 0] * xp.stack([L, L, KM / KF])
+    torque_des = (mixing_matrix @ motor_forces[..., None])[..., 0] * xp.stack([L, L, thrust2torque])
     force_des = xp.sum(motor_forces, axis=-1)[..., None]
     return force_des, torque_des, r_int_error
 
@@ -270,8 +268,8 @@ def force_torque2rotor_vel(
     thrust_min: float,
     thrust_max: float,
     L: float,
-    KM: float,
-    KF: float,
+    rpm2thrust: Array,
+    thrust2torque: float,
     mixing_matrix: Array,
 ) -> Array:
     """Convert desired collective thrust and torques to rotor speeds.
@@ -293,8 +291,8 @@ def force_torque2rotor_vel(
         thrust_min: Minimum thrust in N.
         thrust_max: Maximum thrust in N.
         L: Distance from the center of the quadrotor to the center of the rotor in m.
-        KM: Torque constant (Nm/RPM).
-        KF: Force constant (N/RPM).
+        rpm2thrust: Force constants (N/RPM, N/RPM**2).
+        thrust2torque: Conversion factor (m).
         mixing_matrix: Mixing matrix for the motor forces with shape (4, 3).
 
     Returns:
@@ -303,9 +301,11 @@ def force_torque2rotor_vel(
     xp = array_namespace(torque)
     assert torque.shape[-1] == 3, f"Torque must have shape (..., 3), but has {torque.shape}"
     assert force.shape[-1] == 1, f"Force must have shape (..., 1), but has {force.shape}"
-    torque_forces = (torque * xp.asarray([1 / L, 1 / L, KF / KM])) @ mixing_matrix
+    torque_forces = (torque * xp.asarray([1 / L, 1 / L, 1 / thrust2torque])) @ mixing_matrix
     motor_forces = (torque_forces + force) / 4
     # Clip motor forces on the thrust instead of PWM level.
     motor_forces = xp.where(xp.all(force == 0), 0.0, xp.clip(motor_forces, thrust_min, thrust_max))
     # Assume perfect battery compensation and calculate the desired motor speeds directly
-    return motor_force2rotor_vel(motor_forces, KF)
+    return motor_force2rotor_vel(
+        motor_forces, rpm2thrust[2]
+    )  # TODO change function to take all rpm2thrust params

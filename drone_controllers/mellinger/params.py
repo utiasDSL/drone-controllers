@@ -50,8 +50,7 @@ class AttitudeParams(NamedTuple):
     pwm_min: float
     pwm_max: float
     L: float
-    KF: float
-    KM: float
+    thrust2torque: float
     mixing_matrix: Array
 
     @staticmethod
@@ -72,8 +71,8 @@ class ForceTorqueParams(NamedTuple):
     thrust_min: float
     thrust_max: float
     L: float
-    KF: float
-    KM: float
+    rpm2thrust: Array
+    thrust2torque: float
     mixing_matrix: Array
 
     @staticmethod
