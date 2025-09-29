@@ -4,7 +4,7 @@
 
 ---
 
-Drone controllers @ LSY. Contains arrayAPI (i.e., NumPy, JAX, Torch...) implementations for various onboard drone controllers.
+Drone controllers @ LSY. Contains array API (i.e., NumPy, JAX, Torch...) implementations for various onboard drone controllers.
 
 [![Python Version]][Python Version URL] [![Ruff Check]][Ruff Check URL] [![Tests]][Tests URL] [![Docs]][Docs URL]
 
