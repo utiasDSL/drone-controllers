@@ -62,6 +62,38 @@ ki_m = [0.0, 0.0, 500.0]
 kd_omega = [200.0, 200.0, 0.0]
 int_err_max = [1.0, 1.0, 1500.0]
 
+[cf2x_T350.core]
+mass = 0.03454 # TODO
+mass_thrust = 132000
+thrust_min = 0.03
+thrust_max = 0.1625
+pwm_min = 20000.0
+pwm_max = 65535.0
+torque_pwm_max = [32000.0, 32000.0, 32000.0]
+L = 0.03253
+rpm2thrust = [0.0, 0.0, 5.792654323957372e-10] # TODO
+rpm2torque = [0.0, 0.0, 7.94e-12] # TODO
+thrust2torque = 0.001371 # TODO
+mixing_matrix = [
+    [-1.0, -1.0,  1.0,  1.0],
+    [-1.0,  1.0,  1.0, -1.0],
+    [-1.0,  1.0, -1.0,  1.0]
+]
+gravity_vec = [0.0, 0.0, -9.81]
+
+[cf2x_T350.state2attitude]
+kp = [0.4, 0.4, 1.25]
+kd = [0.2, 0.2, 0.5]
+ki = [0.05, 0.05, 0.05]
+int_err_max = [2.0, 2.0, 0.4]
+
+[cf2x_T350.attitude2force_torque]
+kR = [70000.0, 70000.0, 60000.0]
+kw = [20000.0, 20000.0, 12000.0]
+ki_m = [0.0, 0.0, 500.0]
+kd_omega = [200.0, 200.0, 0.0]
+int_err_max = [1.0, 1.0, 1500.0]
+
 [cf21B_500.core]
 mass = 0.04338
 gravity_vec = [0.0, 0.0, -9.81]
