@@ -257,6 +257,8 @@ def attitude2force_torque(
 
 def force_torque_pwms2pwms(force_pwm: Array, torque_pwm: Array, mixing_matrix: Array) -> Array:
     """Convert desired collective thrust and torques to rotor speeds using legacy behavior."""
+    xp = array_namespace(force_pwm)
+    torque_pwm = xp.concatenate((torque_pwm[..., :2] / 2, torque_pwm[..., 2:]), axis=-1)
     return force_pwm[..., None] + (torque_pwm @ mixing_matrix)
 
 
@@ -306,6 +308,4 @@ def force_torque2rotor_vel(
     # Clip motor forces on the thrust instead of PWM level.
     motor_forces = xp.where(xp.all(force == 0), 0.0, xp.clip(motor_forces, thrust_min, thrust_max))
     # Assume perfect battery compensation and calculate the desired motor speeds directly
-    return motor_force2rotor_vel(
-        motor_forces, rpm2thrust[2]
-    )  # TODO change function to take all rpm2thrust params
+    return motor_force2rotor_vel(motor_forces, rpm2thrust)
