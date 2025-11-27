@@ -139,6 +139,7 @@ def attitude2force_torque(
     vel: Array,
     ang_vel: Array,
     cmd: Array,
+    prev_ang_vel: Array | None = None,
     ctrl_errors: tuple[Array, ...] | None = None,
     ctrl_info: tuple[Array, ...] | None = None,
     ctrl_freq: int = 500,
@@ -209,18 +210,13 @@ def attitude2force_torque(
     # Warning: We assume zero desired angular velocity
     ang_vel_des = xp.zeros_like(ang_vel)
     prev_ang_vel_des = xp.zeros_like(ang_vel)
-    ew = ang_vel_des - ang_vel  # if the setpoint is ever != 0 => change sign of setpoint[1]
+    ew = ang_vel_des - ang_vel
     # WARNING: if the setpoint is ever != 0 => change sign of ew.y!
 
-    # ang_vel_d_err likely dampens the system because of measurement noise. This term needs to be
-    # tuned to the sensors of the drone. Since we don't have similar noise properties in the sim, we
-    # set this term to zero. We still keep the calculation in here for completeness.
-    # prev_ang_vel = ang_vel if ctrl_info is None else ctrl_info[0]
-    # Disable the ang_vel_d_err term by setting prev_ang_vel to ang_vel. The other two terms are
-    # already zero.
-    prev_ang_vel = ang_vel
+    # l.259 ff [err_d_rpy]
+    prev_ang_vel = xp.zeros_like(ang_vel) if prev_ang_vel is None else prev_ang_vel
     ang_vel_d_err = ((ang_vel_des - prev_ang_vel_des) - (ang_vel - prev_ang_vel)) / dt
-    # # l.281: No err_d_yaw
+    # l.281: No err_d_yaw
     ang_vel_d_err = xpx.at(ang_vel_d_err)[..., 2].set(0)
 
     # l. 268 ff Integral Error

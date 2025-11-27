@@ -1,6 +1,6 @@
 [cf2x_L250]
 [cf2x_L250.core]
-mass = 0.033
+mass = 0.029  # The controller is using the wrong mass by default
 mass_thrust = 132000
 pwm_min = 7000
 pwm_max = 65535
@@ -33,7 +33,7 @@ int_err_max = [1.0, 1.0, 1500.0]
 
 [cf2x_P250]
 [cf2x_P250.core]
-mass = 0.033
+mass = 0.029  # The controller is using the wrong mass by default
 mass_thrust = 132000
 pwm_min = 7000
 pwm_max = 65535
@@ -66,7 +66,7 @@ int_err_max = [1.0, 1.0, 1500.0]
 
 [cf2x_T350]
 [cf2x_T350.core]
-mass = 0.03454 # TODO
+mass = 0.0325  # The controller is using the wrong mass by default
 mass_thrust = 132000
 pwm_min = 7000
 pwm_max = 65535
@@ -100,7 +100,7 @@ int_err_max = [1.0, 1.0, 1500.0]
 [cf21B_500]
 [cf21B_500.core]
 gravity_vec = [0.0, 0.0, -9.81]
-mass = 0.04338
+mass = 0.0393  # The controller is using the wrong mass by default
 L = 0.035355
 rpm2thrust = [0.0, -3.133427287299859e-7, 4.407354891648379e-10]
 rpm2torque = [0.0, 1.65886356219615e-9, 2.4693477924534137e-12]
