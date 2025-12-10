@@ -120,6 +120,10 @@ mkdocs-literate-nav = ">=0.6.0"
 docs-serve = { cmd = "mkdocs serve", description = "Serve docs locally" }
 docs-build = { cmd = "mkdocs build", description = "Build docs" }
 
+[tool.pixi.feature.dist.pypi-dependencies]
+build = "*"
+twine = "*"
+
 [tool.pixi.feature.dist.tasks]
 build = { cmd = "python -m build && twine check dist/*", description = "Build and test the package" }
 upload_test = { cmd = "twine upload -r testpypi dist/*", description = "Test upload of the built package" }
