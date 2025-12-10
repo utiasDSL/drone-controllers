@@ -2,6 +2,7 @@
 name = "drone_controllers"
 version = "0.1.0b"
 description = "Controllers for quadrotor drones."
+authors = [{ name = "Marcel Rath" }, { name = "Martin Schuck" }]
 readme = "README.md"
 license = { file = "LICENSE" }
 classifiers = [
