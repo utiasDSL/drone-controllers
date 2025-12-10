@@ -13,7 +13,7 @@ from drone_controllers.mellinger.params import AttitudeParams, ForceTorqueParams
 from drone_controllers.transform import force2pwm, motor_force2rotor_vel, pwm2force
 
 if TYPE_CHECKING:
-    from array_api_typing import Array
+    from drone_controllers._typing import Array  # To be changed to array_api_typing later
 
 
 @register_controller_parameters(StateParams)

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, NamedTuple
 import numpy as np
 
 if TYPE_CHECKING:
-    from array_api_typing import Array
+    from drone_controllers._typing import Array  # To be changed to array_api_typing later
 
 
 class StateParams(NamedTuple):

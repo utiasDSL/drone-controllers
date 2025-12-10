@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from functools import partial
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-from array_api_typing import Array
 
 from drone_controllers import parametrize
 from drone_controllers.drones import Drones
@@ -12,6 +14,9 @@ from drone_controllers.mellinger import (
     state2attitude,
 )
 from drone_controllers.mellinger.params import AttitudeParams, ForceTorqueParams, StateParams
+
+if TYPE_CHECKING:
+    from drone_controllers._typing import Array  # To be changed to array_api_typing later
 
 
 def create_rnd_states(shape: tuple[int, ...] = ()) -> tuple[Array, Array, Array, Array]:
