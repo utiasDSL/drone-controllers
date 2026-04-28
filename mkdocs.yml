@@ -1,8 +1,8 @@
 site_name: Drone Controllers
 site_description: Controllers for quadrotor drones
-site_url: https://utiasdsl.github.io/drone-controllers/
-repo_url: https://github.com/utiasDSL/drone-controllers
-repo_name: utiasDSL/drone-controllers
+site_url: https://learnsyslab.github.io/drone-controllers/
+repo_url: https://github.com/learnsyslab/drone-controllers
+repo_name: learnsyslab/drone-controllers
 
 theme:
   name: material
@@ -96,7 +96,7 @@ extra_javascript:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/utiasDSL/drone-controllers
+      link: https://github.com/learnsyslab/drone-controllers
 
 extra_css:
   - stylesheets/extra.css

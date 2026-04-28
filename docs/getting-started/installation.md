@@ -16,7 +16,7 @@ pip install drone-controllers
 Clone the repository and install in development mode:
 
 ```bash
-git clone https://github.com/utiasDSL/drone-controllers.git
+git clone https://github.com/learnsyslab/drone-controllers.git
 cd drone-controllers
 pip install -e .
 ```
@@ -49,7 +49,7 @@ If you plan to contribute to Drone Controllers, install the development dependen
 curl -fsSL https://pixi.sh/install.sh | bash
 
 # Clone and install
-git clone https://github.com/utiasDSL/drone-controllers.git
+git clone https://github.com/learnsyslab/drone-controllers.git
 cd drone-controllers
 pixi install
 
