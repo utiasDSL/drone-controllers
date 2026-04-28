@@ -5,8 +5,8 @@ u = K_p e + K_i \int e \, dt + K_d \frac{de}{dt}
 $$
 
 
-[![CI](https://github.com/utiasDSL/drone-controllers/actions/workflows/testing.yml/badge.svg)](https://github.com/utiasDSL/drone-controllers/actions)
-[![License](https://img.shields.io/github/license/utiasDSL/drone-controllers)](https://github.com/utiasDSL/drone-controllers/blob/main/LICENSE)
+[![CI](https://github.com/learnsyslab/drone-controllers/actions/workflows/testing.yml/badge.svg)](https://github.com/learnsyslab/drone-controllers/actions)
+[![License](https://img.shields.io/github/license/learnsyslab/drone-controllers)](https://github.com/learnsyslab/drone-controllers/blob/main/LICENSE)
 
 **Drone Controllers** is a Python library providing faithful reimplementations of onboard drone controllers that can be used for simulation and modelling.
 
@@ -91,4 +91,4 @@ All controllers support the Python Array API standard, meaning you can use them 
 - Read the [Getting Started](getting-started/installation.md) guide
 - Browse the [API Reference](api/core.md)  
 - Check out [Concepts](concepts/overview.md) for theory
-- Report issues on [GitHub](https://github.com/utiasDSL/drone-controllers/issues)
+- Report issues on [GitHub](https://github.com/learnsyslab/drone-controllers/issues)

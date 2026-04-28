@@ -11,18 +11,18 @@ Drone controllers @ LSY. Contains array API (i.e., NumPy, JAX, Torch...) impleme
 [Python Version]: https://img.shields.io/badge/python-3.10+-blue.svg
 [Python Version URL]: https://www.python.org
 
-[Ruff Check]: https://github.com/utiasDSL/drone-controllers/actions/workflows/ruff.yml/badge.svg?style=flat-square
-[Ruff Check URL]: https://github.com/utiasDSL/drone-controllers/actions/workflows/ruff.yml
+[Ruff Check]: https://github.com/learnsyslab/drone-controllers/actions/workflows/ruff.yml/badge.svg?style=flat-square
+[Ruff Check URL]: https://github.com/learnsyslab/drone-controllers/actions/workflows/ruff.yml
 
-[Tests]: https://github.com/utiasDSL/drone-controllers/actions/workflows/testing.yml/badge.svg
-[Tests URL]: https://github.com/utiasDSL/drone-controllers/actions/workflows/testing.yml
+[Tests]: https://github.com/learnsyslab/drone-controllers/actions/workflows/testing.yml/badge.svg
+[Tests URL]: https://github.com/learnsyslab/drone-controllers/actions/workflows/testing.yml
 
-[Docs]: https://github.com/utiasDSL/drone-controllers/actions/workflows/docs.yml/badge.svg
-[Docs URL]: https://utiasdsl.github.io/drone-controllers/
+[Docs]: https://github.com/learnsyslab/drone-controllers/actions/workflows/docs.yml/badge.svg
+[Docs URL]: https://learnsyslab.github.io/drone-controllers/
 
 ## Installation
 
-1. Clone repository `git clone git@github.com:utiasDSL/drone-controllers.git`
+1. Clone repository `git clone git@github.com:learnsyslab/drone-controllers.git`
 2. Enter repository `cd drone-controllers`
 3. Install locally with `pip install -e .` or the pixi environment with `pixi install`, which can be activated with `pixi shell`
 

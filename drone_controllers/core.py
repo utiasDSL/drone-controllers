@@ -1,89 +1,91 @@
-"""Core functionalities for controller parametrization and registration."""
+"""Core functionalities for controller parametrization."""
 
 from __future__ import annotations
 
+import inspect
+import tomllib
 from functools import partial
-from typing import Any, Callable, ParamSpec, Protocol, TypeVar, runtime_checkable
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Callable, ParamSpec, TypeVar
+
+import numpy as np
+
+if TYPE_CHECKING:
+    from types import ModuleType
 
 P = ParamSpec("P")
 R = TypeVar("R")
 
 
-controller_parameter_registry: dict[str, type[ControllerParams]] = {}
-
-
-def parametrize(fn: Callable[P, R], drone_model: str) -> Callable[P, R]:
-    """Parametrize a controller function with the default controller parameters for a drone model.
+def parametrize(
+    fn: Callable[P, R], drone_model: str, xp: ModuleType | None = None, device: str | None = None
+) -> Callable[P, R]:
+    """Parametrize a controller function with the default parameters for a drone model.
 
     Args:
         fn: The controller function to parametrize.
         drone_model: The drone model to use.
+        xp: The array API module to use. If not provided, numpy is used.
+        device: The device to use. If none, the device is inferred from the xp module.
 
     Example:
-        >>> from drone_models.controller import parametrize
-        >>> from drone_models.controller.mellinger import state2attitude
-        >>> controller_fn = parametrize(state2attitude, drone_model="cf2x_L250")
-        >>> command_rpyt, int_pos_err = controller_fn(
-        ...     pos=pos,
-        ...     quat=quat,
-        ...     vel=vel,
-        ...     ang_vel=ang_vel,
-        ...     cmd=cmd,
-        ...     ctrl_errors=(int_pos_err,),
-        ...     ctrl_freq=100,
+        >>> from drone_controllers import parametrize
+        >>> from drone_controllers.mellinger import state2attitude
+        >>> controller = parametrize(state2attitude, drone_model="cf2x_L250")
+        >>> command_rpyt, int_pos_err = controller(
+        ...     pos=pos, quat=quat, vel=vel, ang_vel=ang_vel, cmd=cmd, ctrl_freq=100
         ... )
 
     Returns:
-        The parametrized controller function with all keyword argument only parameters filled in.
+        The parametrized controller function with all keyword-only parameters filled in.
     """
-    controller_id = fn.__module__ + "." + fn.__name__
+    xp = np if xp is None else xp
+    controller = fn.__module__.split(".")[-2]
+    fn_name = fn.__name__
     try:
-        params = controller_parameter_registry[controller_id].load(drone_model)
+        sig = inspect.signature(fn)
+        kwonly_params = [
+            name
+            for name, param in sig.parameters.items()
+            if param.kind == inspect.Parameter.KEYWORD_ONLY
+        ]
+        params = load_params(controller, fn_name, drone_model, xp=xp)
+        params = {k: xp.asarray(v, device=device) for k, v in params.items() if k in kwonly_params}
     except KeyError as e:
         raise KeyError(
-            f"Controller `{controller_id}` does not exist in the parameter registry"
+            f"Drone model `{drone_model}` not found for controller `{controller}.{fn_name}`"
         ) from e
-    except ValueError as e:
-        raise ValueError(f"Drone model `{drone_model}` not supported for `{fn.__name__}`") from e
-    return partial(fn, **params._asdict())
+    return partial(fn, **params)
 
 
-@runtime_checkable
-class ControllerParams(Protocol):
-    """Protocol for controller parameters."""
+def load_params(
+    controller: str, fn_name: str, drone_model: str, xp: ModuleType | None = None
+) -> dict[str, Any]:
+    """Load and merge parameters for a controller function and drone model.
 
-    @staticmethod
-    def load(drone_model: str) -> ControllerParams:
-        """Load the parameters from the config file."""
-
-    def _asdict(self) -> dict[str, Any]:
-        """Convert the parameters to a dictionary."""
-
-
-def register_controller_parameters(
-    params: ControllerParams | type[ControllerParams],
-) -> Callable[[Callable[P, R]], Callable[P, R]]:
-    """Register the default controller parameters for this controller.
-
-    Warning:
-        The controller parameters **must** be a named tuple with a function `load` that takes in the
-        drone model name and returns an instance of itself, or a class that implements the
-        ControllerParams protocol.
+    Reads parameters from the controller's ``params.toml`` file, merging the
+    shared ``[drone_model.core]`` section with the function-specific
+    ``[drone_model.{fn_name}]`` section (if it exists).
 
     Args:
-        params: The controller parameter type.
+        controller: Name of the controller sub-package, e.g. ``"mellinger"``.
+        fn_name: Name of the controller function, e.g. ``"state2attitude"``.
+        drone_model: Name of the drone configuration, e.g. ``"cf2x_L250"``.
+        xp: Array API module used to convert parameter values. If ``None``,
+            NumPy is used.
 
     Returns:
-        A decorator function that registers the parameters and returns the function unchanged.
+        A flat dict mapping parameter names to arrays in the requested array namespace.
+
+    Raises:
+        KeyError: If ``drone_model`` is not found in the TOML file.
     """
-    if not isinstance(params, ControllerParams):
-        raise ValueError(f"{params} does not implement the ControllerParams protocol")
-
-    def decorator(fn: Callable[P, R]) -> Callable[P, R]:
-        controller_id = fn.__module__ + "." + fn.__name__
-        if controller_id in controller_parameter_registry:
-            raise ValueError(f"Controller `{controller_id}` already registered")
-        controller_parameter_registry[controller_id] = params
-        return fn
-
-    return decorator
+    xp = np if xp is None else xp
+    with open(Path(__file__).parent / f"{controller}/params.toml", "rb") as f:
+        all_params = tomllib.load(f)
+    if drone_model not in all_params:
+        raise KeyError(f"Drone model `{drone_model}` not found in {controller}/params.toml")
+    drone_params = all_params[drone_model]
+    params = dict(drone_params.get("core", {}))
+    params |= drone_params.get(fn_name, {})
+    return {k: xp.asarray(v) for k, v in params.items()}
