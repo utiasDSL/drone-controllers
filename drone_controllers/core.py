@@ -18,10 +18,7 @@ R = TypeVar("R")
 
 
 def parametrize(
-    fn: Callable[P, R],
-    drone_model: str,
-    xp: ModuleType | None = None,
-    device: str | None = None,
+    fn: Callable[P, R], drone_model: str, xp: ModuleType | None = None, device: str | None = None
 ) -> Callable[P, R]:
     """Parametrize a controller function with the default controller parameters for a drone model.
 
