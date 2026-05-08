@@ -168,9 +168,7 @@ def attitude2force_torque(
         thrust_max: Maximum thrust in N.
         pwm_min: Minimum PWM value.
         pwm_max: Maximum PWM value.
-        ang_vel_des: Desired angular velocity in rad/s.
         prev_ang_vel: Previous angular velocity in rad/s.
-        prev_ang_vel_des: Previous angular velocity command in rad/s.
         L: Distance from the center of the quadrotor to the center of the rotor in m.
         thrust2torque: Conversion factor (m).
         mixing_matrix: Mixing matrix for the motor forces with shape (4, 3).

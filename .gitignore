@@ -7,3 +7,4 @@
 # pixi environments
 .pixi
 *.egg-info
+site

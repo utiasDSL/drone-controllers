@@ -36,11 +36,6 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quick-start.md
-  - Concepts:
-    - Overview: concepts/overview.md
-    - Control Theory: concepts/control-theory.md
-    - Drone Dynamics: concepts/drone-dynamics.md
-    - Controller Design: concepts/controller-design.md
   - API Reference:
     - Core: api/core.md
     - Drones: api/drones.md
@@ -49,11 +44,6 @@ nav:
 
 plugins:
   - search
-  - gen-files:
-      scripts:
-        - docs/gen_ref_pages.py
-  - literate-nav:
-      nav_file: SUMMARY.md
   - mkdocstrings:
       handlers:
         python:
