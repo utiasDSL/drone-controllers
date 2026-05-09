@@ -8,23 +8,18 @@ import array_api_extra as xpx
 from array_api_compat import array_namespace
 from scipy.spatial.transform import Rotation as R
 
-from drone_controllers.core import register_controller_parameters
-from drone_controllers.mellinger.params import AttitudeParams, ForceTorqueParams, StateParams
 from drone_controllers.transform import force2pwm, motor_force2rotor_vel, pwm2force
 
 if TYPE_CHECKING:
     from drone_controllers._typing import Array  # To be changed to array_api_typing later
 
 
-@register_controller_parameters(StateParams)
 def state2attitude(
     pos: Array,
     quat: Array,
     vel: Array,
-    ang_vel: Array,
     cmd: Array,
     ctrl_errors: tuple[Array, ...] | None = None,
-    ctrl_info: tuple[Array, ...] | None = None,
     ctrl_freq: float = 100,
     *,
     mass: float,
@@ -46,12 +41,10 @@ def state2attitude(
         pos: Drone position with shape (..., 3).
         quat: Drone orientation as xyzw quaternion with shape (..., 4).
         vel: Drone velocity with shape (..., 3).
-        ang_vel: Drone angular drone velocity in rad/s with shape (..., 3).
         cmd: Full state command in SI units and rad with shape (..., 13). The entries are
             [x, y, z, vx, vy, vz, ax, ay, az, yaw, roll_rate, pitch_rate, yaw_rate].
         ctrl_errors: Tuple of integral errors. For state2attitude, the tuple contains a single array
             (..., 3) for the position integral error or is None.
-        ctrl_info: Tuple of arrays with additional data. Not used in state2attitude.
         ctrl_freq: Control frequency in Hz
         mass: Drone mass used for calculations in the controller in kg.
         kp: Proportional gain for the position controller with shape (3,).
@@ -132,16 +125,12 @@ def state2attitude(
     return command_rpyt, int_pos_err
 
 
-@register_controller_parameters(AttitudeParams)
 def attitude2force_torque(
-    pos: Array,
     quat: Array,
-    vel: Array,
     ang_vel: Array,
     cmd: Array,
     prev_ang_vel: Array | None = None,
     ctrl_errors: tuple[Array, ...] | None = None,
-    ctrl_info: tuple[Array, ...] | None = None,
     ctrl_freq: int = 500,
     *,
     kR: Array,
@@ -164,14 +153,11 @@ def attitude2force_torque(
         compatible with the new frame of the Crazyflie 2.1.
 
     Args:
-        pos: Drone position with shape (..., 3).
         quat: Drone orientation as xyzw quaternion with shape (..., 4).
-        vel: Drone velocity with shape (..., 3).
         ang_vel: Drone angular drone velocity in rad/s with shape (..., 3).
         cmd: Commanded attitude (roll, pitch, yaw) and total thrust [rad, rad, rad, N].
         ctrl_errors: Tuple of integral errors. For attitude2force_torque, the tuple contains a
             single array (..., 3) for the angular velocity integral error or is None.
-        ctrl_info: Tuple of arrays with additional data. Not used in attitude2force_torque.
         ctrl_freq: Control frequency in Hz
         kR: Proportional gain for the rotation error with shape (3,).
         kw: Proportional gain for the angular velocity error with shape (3,).
@@ -182,9 +168,7 @@ def attitude2force_torque(
         thrust_max: Maximum thrust in N.
         pwm_min: Minimum PWM value.
         pwm_max: Maximum PWM value.
-        ang_vel_des: Desired angular velocity in rad/s.
         prev_ang_vel: Previous angular velocity in rad/s.
-        prev_ang_vel_des: Previous angular velocity command in rad/s.
         L: Distance from the center of the quadrotor to the center of the rotor in m.
         thrust2torque: Conversion factor (m).
         mixing_matrix: Mixing matrix for the motor forces with shape (4, 3).
@@ -258,7 +242,6 @@ def force_torque_pwms2pwms(force_pwm: Array, torque_pwm: Array, mixing_matrix: A
     return force_pwm[..., None] + (torque_pwm @ mixing_matrix)
 
 
-@register_controller_parameters(ForceTorqueParams)
 def force_torque2rotor_vel(
     force: Array,
     torque: Array,

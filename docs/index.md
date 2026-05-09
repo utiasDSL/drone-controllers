@@ -40,13 +40,12 @@ controller = parametrize(state2attitude, "cf2x_L250")
 pos = np.array([0.0, 0.0, 1.0])  # position [x, y, z]
 quat = np.array([0.0, 0.0, 0.0, 1.0])  # quaternion [x, y, z, w]
 vel = np.array([0.0, 0.0, 0.0])  # velocity [vx, vy, vz]
-ang_vel = np.array([0.0, 0.0, 0.0])  # angular velocity [wx, wy, wz]
 
 # Command: [x, y, z, vx, vy, vz, ax, ay, az, yaw, r_rate, p_rate, y_rate]
 cmd = np.array([1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
 # Compute control output
-rpyt, pos_err_i = controller(pos, quat, vel, ang_vel, cmd)
+rpyt, pos_err_i = controller(pos, quat, vel, cmd)
 print(f"Roll-Pitch-Yaw-Thrust command: {rpyt}")
 ```
 
@@ -54,7 +53,7 @@ print(f"Roll-Pitch-Yaw-Thrust command: {rpyt}")
 
 ### Implemented Controllers
 
-- **[Mellinger Controller](api/drone_controllers/mellinger/control.md)** — Geometric tracking controller based on the original Crazyflie implementation
+- **[Mellinger Controller](api/mellinger.md)** — Geometric tracking controller based on the original Crazyflie implementation
 
 ### Supported Drone Models
 
@@ -89,6 +88,5 @@ All controllers support the Python Array API standard, meaning you can use them 
 ## Getting Help
 
 - Read the [Getting Started](getting-started/installation.md) guide
-- Browse the [API Reference](api/core.md)  
-- Check out [Concepts](concepts/overview.md) for theory
+- Browse the [API Reference](api/core.md)
 - Report issues on [GitHub](https://github.com/learnsyslab/drone-controllers/issues)

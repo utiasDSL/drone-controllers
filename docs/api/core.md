@@ -2,13 +2,13 @@
 
 ::: drone_controllers.core
 
-The core module provides the foundational functionality for controller parametrization and registration.
+The core module provides the foundational functionality for controller parametrization.
 
 ## Key Concepts
 
 ### Controller Parametrization
 
-The `parametrize` function allows you to automatically configure controllers with parameters for specific drone models:
+The `parametrize` function automatically configures a controller with parameters for a specific drone model by inspecting the function's keyword-only arguments and filling them from the corresponding TOML file:
 
 ```python
 from drone_controllers import parametrize
@@ -18,38 +18,29 @@ from drone_controllers.mellinger import state2attitude
 controller = parametrize(state2attitude, "cf2x_L250")
 
 # Use the controller (all parameters are automatically filled in)
-rpyt, pos_err = controller(pos, quat, vel, ang_vel, cmd)
+rpyt, pos_err = controller(pos, quat, vel, cmd)
 ```
 
-### Parameter Registry
+### Manual Parameter Loading
 
-Controllers register their parameter types using the `@register_controller_parameters` decorator:
+Use `load_params` to inspect or override parameters directly:
 
 ```python
-@register_controller_parameters(MyControllerParams)
-def my_controller(pos, vel, *, param1, param2, param3):
-    # Controller implementation
-    pass
+from drone_controllers.core import load_params
+
+params = load_params("mellinger", "state2attitude", "cf2x_L250")
+print(params["mass"])   # 0.029
+print(params["kp"])     # position gain array
 ```
 
-### ControllerParams Protocol
+### Array Namespace Support
 
-All controller parameter classes must implement the `ControllerParams` protocol:
-
-- `load(drone_model: str)` - Load parameters for a specific drone model
-- `_asdict()` - Convert parameters to a dictionary
-
-## Example Usage
+Both `parametrize` and `load_params` accept an `xp` argument so that static parameters are placed in the correct array namespace before being bound to the function:
 
 ```python
-from functools import partial
-from drone_controllers.mellinger.params import StateParams
-
-# Manual parameter loading
-params = StateParams.load("cf2x_L250")
-controller = partial(state2attitude, **params._asdict())
-
-# Equivalent to using parametrize
+import jax.numpy as jnp
 from drone_controllers import parametrize
-controller = parametrize(state2attitude, "cf2x_L250")
+from drone_controllers.mellinger import state2attitude
+
+controller = parametrize(state2attitude, "cf2x_L250", xp=jnp)
 ```
