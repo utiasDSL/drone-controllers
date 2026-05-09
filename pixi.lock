@@ -842,8 +842,8 @@ packages:
   requires_python: '>=3.9'
 - pypi: ./
   name: drone-controllers
-  version: 0.1.0
-  sha256: 89f6ceceaeed050513bac3515ea219ed5ba8f70854b7d0f4f411330cff144dca
+  version: 0.2.0
+  sha256: f97b3f74b3f3163b18ac4e2d4ac832ff714b92b3a7b9bbbd2144c695125ed1c5
   requires_dist:
   - numpy>=2.0.0
   - scipy>=1.17.0
