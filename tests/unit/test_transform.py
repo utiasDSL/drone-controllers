@@ -5,7 +5,8 @@ from typing import Any
 import numpy as np
 import pytest
 
-from drone_controllers.core import load_params
+from drone_controllers import mellinger
+from drone_controllers.core import load_core_params
 from drone_controllers.drones import Drones
 from drone_controllers.transform import (
     force2pwm,
@@ -17,7 +18,7 @@ from drone_controllers.transform import (
 
 @pytest.fixture(scope="module")
 def core_params() -> dict[str, Any]:
-    return load_params("mellinger", "force_torque2rotor_vel", Drones.cf2x_L250)
+    return load_core_params(mellinger, Drones.cf2x_L250)
 
 
 @pytest.mark.unit

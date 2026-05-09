@@ -100,7 +100,7 @@ def test_state2attitude_integral_error_accumulation(drone_model: Drones) -> None
     # A constant position error must cause the integral error to accumulate
     # linearly until it would exceed int_err_max (clipped by the controller).
     controller = parametrize(state2attitude, drone_model)
-    params = load_params("mellinger", "state2attitude", drone_model)
+    params = load_params(state2attitude, drone_model)
     pos = np.zeros(3)
     quat = np.array([0.0, 0.0, 0.0, 1.0])
     vel = np.zeros(3)

@@ -6,12 +6,14 @@ import inspect
 import tomllib
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Callable, ParamSpec, TypeVar
 
 import numpy as np
 
 if TYPE_CHECKING:
     from types import ModuleType
+
+    from drone_controllers._typing import Array  # To be changed to array_api_typing later
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -46,30 +48,19 @@ def parametrize(
         The parametrized controller function with all keyword argument only parameters filled in.
     """
     xp = np if xp is None else xp
-    controller = fn.__module__.split(".")[-2]
-    sig = inspect.signature(fn)
-    kwonly_params = {
-        name
-        for name, param in sig.parameters.items()
-        if param.kind == inspect.Parameter.KEYWORD_ONLY
-    }
     try:
-        params = load_params(controller, fn.__name__, drone_model, xp=xp)
+        params = load_params(fn, drone_model, xp=xp, device=device)
     except KeyError as e:
+        controller = fn.__module__.split(".")[-2]
         raise KeyError(
             f"Controller `{controller}.{fn.__name__}` not found for drone `{drone_model}`"
         ) from e
-    params = {k: xp.asarray(v, device=device) for k, v in params.items() if k in kwonly_params}
     return partial(fn, **params)
 
 
 def load_params(
-    controller: str,
-    fn_name: str,
-    drone_model: str,
-    xp: ModuleType | None = None,
-    device: str | None = None,
-) -> dict[str, Any]:
+    fn: Callable, drone_model: str, xp: ModuleType | None = None, device: str | None = None
+) -> dict[str, Array]:
     """Load and merge controller parameters for a specific function.
 
     Reads ``drone_controllers/<controller>/params.toml`` and merges the
@@ -77,8 +68,7 @@ def load_params(
     with function-specific values taking precedence over core values.
 
     Args:
-        controller: Name of the controller sub-package, e.g. ``"mellinger"``.
-        fn_name: Name of the controller function, e.g. ``"state2attitude"``.
+        fn: The controller function for which to load parameters.
         drone_model: Name of the drone configuration, e.g. ``"cf2x_L250"``.
         xp: The array API module to use. If not provided, numpy is used.
         device: The device to use. If None, the device is inferred from the xp module.
@@ -90,10 +80,27 @@ def load_params(
         KeyError: If ``drone_model`` is not found in the params.toml file.
     """
     xp = np if xp is None else xp
+    controller, fn_name = fn.__module__.split(".")[-2], fn.__name__
     with open(Path(__file__).parent / f"{controller}/params.toml", "rb") as f:
         params = tomllib.load(f)
     if drone_model not in params:
         raise KeyError(f"Drone model `{drone_model}` not found in {controller}/params.toml")
     model_params = params[drone_model]
     merged = model_params.get("core", {}) | model_params.get(fn_name, {})
-    return {k: xp.asarray(v, device=device) for k, v in merged.items()}
+    params = {k: xp.asarray(v, device=device) for k, v in merged.items()}
+    # Filter out parameters from core that do not apply to the function
+    accepted_params = set(inspect.signature(fn).parameters.keys())
+    return {k: v for k, v in params.items() if k in accepted_params}
+
+
+def load_core_params(
+    mod: ModuleType, drone_model: str, xp: ModuleType | None = None, device: str | None = None
+) -> dict[str, Array]:
+    """Load core parameters for a given controller module and drone model."""
+    xp = np if xp is None else xp
+    with open(Path(__file__).parent / f"{mod.__name__.split('.')[-1]}/params.toml", "rb") as f:
+        params = tomllib.load(f)
+    if drone_model not in params:
+        raise KeyError(f"Drone model `{drone_model}` not found in {mod.__name__}/params.toml")
+    core_params = params[drone_model].get("core", {})
+    return {k: xp.asarray(v, device=device) for k, v in core_params.items()}

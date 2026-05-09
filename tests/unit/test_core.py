@@ -23,7 +23,7 @@ _MELLINGER_FNS = [state2attitude, attitude2force_torque, force_torque2rotor_vel]
 @pytest.mark.parametrize("fn", _MELLINGER_FNS, ids=lambda fn: fn.__name__)
 @pytest.mark.parametrize("drone_model", Drones)
 def test_load_params_keys(fn: Callable[..., Any], drone_model: Drones) -> None:
-    params = load_params("mellinger", fn.__name__, drone_model)
+    params = load_params(fn, drone_model)
     kwonly = {
         name
         for name, p in inspect.signature(fn).parameters.items()
@@ -35,7 +35,7 @@ def test_load_params_keys(fn: Callable[..., Any], drone_model: Drones) -> None:
 @pytest.mark.unit
 @pytest.mark.parametrize("drone_model", Drones)
 def test_load_params_values(drone_model: Drones) -> None:
-    params = load_params("mellinger", "state2attitude", drone_model)
+    params = load_params(state2attitude, drone_model)
     toml_path = Path(__file__).parents[2] / "drone_controllers/mellinger/params.toml"
     with open(toml_path, "rb") as f:
         raw = tomllib.load(f)
@@ -46,13 +46,7 @@ def test_load_params_values(drone_model: Drones) -> None:
 @pytest.mark.unit
 def test_load_params_unknown_drone() -> None:
     with pytest.raises(KeyError, match="nonexistent_drone"):
-        load_params("mellinger", "state2attitude", "nonexistent_drone")
-
-
-@pytest.mark.unit
-def test_load_params_unknown_controller() -> None:
-    with pytest.raises(OSError):
-        load_params("nonexistent", "state2attitude", "cf2x_L250")
+        load_params(state2attitude, "nonexistent_drone")
 
 
 @pytest.mark.unit
