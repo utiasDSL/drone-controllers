@@ -64,7 +64,11 @@ def parametrize(
 
 
 def load_params(
-    controller: str, fn_name: str, drone_model: str, xp: ModuleType | None = None
+    controller: str,
+    fn_name: str,
+    drone_model: str,
+    xp: ModuleType | None = None,
+    device: str | None = None,
 ) -> dict[str, Any]:
     """Load and merge controller parameters for a specific function.
 
@@ -77,6 +81,7 @@ def load_params(
         fn_name: Name of the controller function, e.g. ``"state2attitude"``.
         drone_model: Name of the drone configuration, e.g. ``"cf2x_L250"``.
         xp: The array API module to use. If not provided, numpy is used.
+        device: The device to use. If None, the device is inferred from the xp module.
 
     Returns:
         A flat dict mapping parameter names to arrays in the requested array namespace.
@@ -91,4 +96,4 @@ def load_params(
         raise KeyError(f"Drone model `{drone_model}` not found in {controller}/params.toml")
     model_params = params[drone_model]
     merged = model_params.get("core", {}) | model_params.get(fn_name, {})
-    return {k: xp.asarray(v) for k, v in merged.items()}
+    return {k: xp.asarray(v, device=device) for k, v in merged.items()}
