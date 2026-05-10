@@ -1,189 +1,55 @@
 # Quick Start
 
-This guide will get you up and running with Drone Controllers in just a few minutes.
+This page walks through the minimal workflow: bind parameters to a drone, set up a state, and call the first stage of the Mellinger controller.
 
-## Basic Controller Usage
+## State and command
 
-The library implements controllers as pure functions that can be parametrized for specific drone models. Here's how to use the Mellinger controller:
+Every controller stage shares the same state representation:
 
-```python
-import numpy as np
-from drone_controllers import parametrize
-from drone_controllers.mellinger import state2attitude, attitude2force_torque, force_torque2rotor_vel
+| Variable | Shape | Description |
+|---|---|---|
+| `pos` | `(3,)` | Position in world frame [m] |
+| `quat` | `(4,)` | Attitude as unit quaternion, scalar-last `xyzw` |
+| `vel` | `(3,)` | Linear velocity in world frame [m/s] |
 
-# Parametrize controllers for a specific drone model
-state_ctrl = parametrize(state2attitude, "cf2x_L250")
-attitude_ctrl = parametrize(attitude2force_torque, "cf2x_L250") 
-rotor_ctrl = parametrize(force_torque2rotor_vel, "cf2x_L250")
+The command `cmd` for `state2attitude` is a 13-element array:
+`[x, y, z, vx, vy, vz, ax, ay, az, yaw, roll_rate, pitch_rate, yaw_rate]` in SI units and radians.
 
-# Define current state
-pos = np.array([0.0, 0.0, 0.5])         # Current position [x, y, z]
-quat = np.array([0.0, 0.0, 0.0, 1.0])   # Current quaternion [x, y, z, w]  
-vel = np.array([0.0, 0.0, 0.0])         # Current velocity [vx, vy, vz]
-ang_vel = np.array([0.0, 0.0, 0.0])     # Current angular velocity [wx, wy, wz]
+## Evaluate a controller
 
-# Define command (13 elements)
-# [x, y, z, vx, vy, vz, ax, ay, az, yaw, roll_rate, pitch_rate, yaw_rate]
-cmd = np.array([1.0, 0.0, 1.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-
-# Step 1: State to attitude control
-rpyt_cmd, pos_error_integral = state_ctrl(pos, quat, vel, cmd)
-print(f"Attitude command (R,P,Y,T): {rpyt_cmd}")
-
-# Step 2: Attitude to force/torque
-force, torque, att_error_integral = attitude_ctrl(quat, ang_vel, rpyt_cmd)
-print(f"Desired force: {force[0]:.3f} N")
-print(f"Desired torque: {torque}")
-
-# Step 3: Force/torque to rotor velocities
-rotor_speeds = rotor_ctrl(force, torque)
-print(f"Rotor speeds: {rotor_speeds} rad/s")
-```
-
-## Working with Batches
-
-All controllers support batching through broadcasting. You can process multiple drones or time steps simultaneously:
+`parametrize` loads the physical parameters for a specific drone and returns a `functools.partial` with those parameters pre-filled. You then call it with just the state and command.
 
 ```python
 import numpy as np
 from drone_controllers import parametrize
 from drone_controllers.mellinger import state2attitude
 
-# Parametrize controller
-controller = parametrize(state2attitude, "cf2x_L250")
+ctrl = parametrize(state2attitude, drone_model="cf2x_L250")
 
-# Batch processing: 3 drones, 5 time steps each
-batch_shape = (3, 5)
+# State: hovering at origin, upright, stationary.
+pos  = np.zeros(3)
+quat = np.array([0., 0., 0., 1.])  # xyzw, identity (no rotation)
+vel  = np.zeros(3)
 
-# Create batch states (3 drones × 5 timesteps)
-pos_batch = np.random.randn(*batch_shape, 3)
-quat_batch = np.tile([0, 0, 0, 1], (*batch_shape, 1))  # Level attitude
-vel_batch = np.random.randn(*batch_shape, 3) * 0.1
-ang_vel_batch = np.random.randn(*batch_shape, 3) * 0.1
+# Command: setpoint at origin, zero velocity and acceleration, yaw = 0.
+cmd = np.zeros(13)
 
-# Create batch commands
-cmd_batch = np.zeros((*batch_shape, 13))
-cmd_batch[..., :3] = pos_batch + np.random.randn(*batch_shape, 3) * 0.5  # Target positions
-
-# Process entire batch at once
-rpyt_batch, pos_err_batch = controller(pos_batch, quat_batch, vel_batch, cmd_batch)
-
-print(f"Batch output shape: {rpyt_batch.shape}")  # Should be (3, 5, 4)
-print(f"Per-drone commands: {rpyt_batch[0, 0, :]}")  # First drone, first timestep
+rpyt, int_pos_err = ctrl(pos, quat, vel, cmd)
 ```
 
-## Manual Parameter Loading
+## Outputs
 
-You can inspect or override parameters using `load_params`:
+`state2attitude` returns two arrays:
 
-```python
-from drone_controllers.core import load_params
+| Return | Shape | Description |
+|---|---|---|
+| `rpyt` | `(4,)` | Attitude + thrust command: `[roll_rad, pitch_rad, yaw_rad, thrust_N]` |
+| `int_pos_err` | `(3,)` | Position integral error; pass back next call to accumulate |
 
-params = load_params("mellinger", "state2attitude", "cf2x_L250")
-print(f"Position gains: {params['kp']}")
-print(f"Velocity gains: {params['kd']}")
-print(f"Drone mass: {params['mass']} kg")
-```
+## Next steps
 
-## Array API Compatibility
-
-The controllers work with different array libraries. Here's an example with JAX:
-
-```python
-import jax.numpy as jnp
-from drone_controllers import parametrize
-from drone_controllers.mellinger import state2attitude
-
-# Create JAX arrays
-pos = jnp.array([0.0, 0.0, 1.0])
-quat = jnp.array([0.0, 0.0, 0.0, 1.0])
-vel = jnp.array([0.0, 0.0, 0.0])
-ang_vel = jnp.array([0.0, 0.0, 0.0])
-cmd = jnp.ones(13)
-
-# Parametrize controller (works with any array API)
-controller = parametrize(state2attitude, "cf2x_L250")
-
-# JIT compile for performance
-from jax import jit
-jit_controller = jit(controller)
-
-rpyt, pos_err = jit_controller(pos, quat, vel, cmd)
-print(f"Output type: {type(rpyt)}")  # JAX array
-```
-
-## Error Handling with Integral Terms
-
-Controllers maintain integral errors for robustness. Here's how to handle them properly:
-
-```python
-import numpy as np
-from drone_controllers import parametrize
-from drone_controllers.mellinger import state2attitude
-
-controller = parametrize(state2attitude, "cf2x_L250")
-
-# Initialize state
-pos = np.array([0.0, 0.0, 0.5])
-quat = np.array([0.0, 0.0, 0.0, 1.0])
-vel = np.array([0.0, 0.0, 0.0])
-
-# Target hover at 1m altitude
-cmd = np.array([0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-
-# First call - no integral error history
-rpyt1, pos_err_i1 = controller(pos, quat, vel, cmd, ctrl_errors=None)
-
-# Subsequent calls - pass integral error from previous step
-rpyt2, pos_err_i2 = controller(pos, quat, vel, cmd, ctrl_errors=(pos_err_i1,))
-
-print(f"Integral error evolution: {np.linalg.norm(pos_err_i1)} -> {np.linalg.norm(pos_err_i2)}")
-```
-
-## Available Drone Models
-
-Currently supported drone models:
-
-```python
-from drone_controllers.drones import Drones
-
-# See all available models
-for drone in Drones:
-    print(f"Model: {drone.value}")
-
-# Currently available:
-# - cf2x_L250: Crazyflie 2.x with 250mm frame
-```
-
-## Next Steps
-
-Now that you've seen the basics, explore:
-
-- **[API Reference](../api/core.md)** - Complete API documentation
-
-## Common Issues
-
-### Import Errors
-
-If you get import errors, make sure you've installed the package correctly:
-
-```bash
-pip install -e .  # For development installation
-```
-
-### Array API Compatibility
-
-If you encounter issues with array operations, ensure you're using compatible versions:
-
-```bash
-pip install numpy>=2.0.0 array-api-compat array-api-extra
-```
-
-### Parameter Loading Errors
-
-If parameter loading fails, check that the drone model is supported:
-
-```python
-from drone_controllers.drones import Drones
-print(list(Drones))  # Shows available models
-```
+- [Controllers](../user-guide/controllers.md): all three Mellinger stages and how they chain
+- [Mellinger](../user-guide/mellinger.md): input/output tables for every stage
+- [Parametrize](../user-guide/parametrize.md): available drone models and array backends
+- [Batching](../user-guide/batching.md): vectorized evaluation over many drones
+- [Integral Errors](../user-guide/integral-errors.md): carrying state across timesteps

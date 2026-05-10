@@ -7,16 +7,20 @@ repo_name: learnsyslab/drone-controllers
 theme:
   name: material
   logo: img/logo_white.png
-  favicon: img/logo_white.png
+  favicon: img/logo.png
   features:
-    - navigation.tabs
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    - navigation.footer
+    - navigation.indexes
     - navigation.sections
+    - navigation.tabs
     - navigation.top
     - navigation.tracking
     - search.highlight
-    - search.share
-    - content.code.copy
-    - content.code.annotate
+    - search.suggest
+    - toc.follow
   palette:
     - scheme: default
       primary: custom
@@ -33,9 +37,17 @@ theme:
 
 nav:
   - Home: index.md
-  - Getting Started:
+  - Get Started:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quick-start.md
+  - User Guide:
+    - Controllers: user-guide/controllers.md
+    - Mellinger: user-guide/mellinger.md
+    - Parametrize: user-guide/parametrize.md
+    - Batching: user-guide/batching.md
+    - JIT Compilation: user-guide/jit.md
+    - Integral Errors: user-guide/integral-errors.md
+  - Examples: examples/index.md
   - API Reference:
     - Core: api/core.md
     - Drones: api/drones.md
@@ -59,11 +71,7 @@ plugins:
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.superfences
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -90,3 +98,6 @@ extra:
 
 extra_css:
   - stylesheets/extra.css
+
+watch:
+  - drone_controllers/

@@ -31,18 +31,18 @@ def parametrize(
         device: The device to use. If None, the device is inferred from the xp module.
 
     Example:
-        >>> from drone_controllers.core import parametrize
-        >>> from drone_controllers.mellinger import state2attitude
-        >>> controller_fn = parametrize(state2attitude, drone_model="cf2x_L250")
-        >>> command_rpyt, int_pos_err = controller_fn(
-        ...     pos=pos,
-        ...     quat=quat,
-        ...     vel=vel,
-        ...     ang_vel=ang_vel,
-        ...     cmd=cmd,
-        ...     ctrl_errors=(int_pos_err,),
-        ...     ctrl_freq=100,
-        ... )
+        ```python
+        import numpy as np
+        from drone_controllers import parametrize
+        from drone_controllers.mellinger import state2attitude
+
+        ctrl = parametrize(state2attitude, "cf2x_L250")
+        pos = np.zeros(3)
+        quat = np.array([0.0, 0.0, 0.0, 1.0])
+        vel = np.zeros(3)
+        cmd = np.zeros(13)
+        rpyt, int_pos_err = ctrl(pos, quat, vel, cmd)
+        ```
 
     Returns:
         The parametrized controller function with all keyword argument only parameters filled in.

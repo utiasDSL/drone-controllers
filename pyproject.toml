@@ -109,8 +109,14 @@ pytest = ">=8.4.1"
 array-api-strict = ">=2.4.1,<2.5"
 numpy = ">=1.22.0"
 
+[tool.pixi.feature.tests.pypi-dependencies]
+torch = ">=2.7.0"
+jax = ">=0.7.0"
+pytest-markdown-docs = "*"
+
 [tool.pixi.feature.tests.tasks]
 tests = { cmd = "pytest -v", description = "Run tests" }
+test-docs = { cmd = "pytest -v --markdown-docs --markdown-docs-syntax=superfences drone_controllers/ docs/ --ignore=docs/gen_ref_pages.py", env = { SCIPY_ARRAY_API = "1" }, description = "Run doctests for docstrings and documentation" }
 
 [tool.pixi.feature.docs.dependencies]
 mkdocs = ">=1.5.3"
