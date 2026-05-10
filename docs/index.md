@@ -1,92 +1,45 @@
 # Drone Controllers
 
-$$
-u = K_p e + K_i \int e \, dt + K_d \frac{de}{dt}
-$$
+**Drone Controllers** is a Python library providing faithful reimplementations of onboard drone controllers for simulation and research.
 
+- **Array API standard**: works with NumPy, JAX, PyTorch, and any other compliant library
+- **Pure functions**: every controller is stateless and JIT-compilable
+- **Batching**: arbitrary leading batch dimensions via broadcasting
+- **Research-focused**: designed for quadrotor UAV control and sim-to-real transfer
 
-[![CI](https://github.com/learnsyslab/drone-controllers/actions/workflows/testing.yml/badge.svg)](https://github.com/learnsyslab/drone-controllers/actions)
-[![License](https://img.shields.io/github/license/learnsyslab/drone-controllers)](https://github.com/learnsyslab/drone-controllers/blob/main/LICENSE)
-
-**Drone Controllers** is a Python library providing faithful reimplementations of onboard drone controllers that can be used for simulation and modelling.
-
-## Why use Drone Controllers?
-
-- **Array API Standard** — Controllers work with NumPy, JAX, PyTorch, and other array libraries
-- **Pure Functions** — All controllers are implemented as pure functions for easy JIT compilation
-- **Batching Support** — Built-in support for arbitrary batch dimensions via broadcasting
-- **Research-focused** — Designed specifically for robotics research with quadrotor UAVs
-- **Type-safe** — Full type hints for better development experience
-
-## Quick Start
-
-[Installation](getting-started/installation.md) is simple with pip:
-
-```bash
-pip install drone-controllers
-```
-
-Here's a basic example using the Mellinger controller:
+## Quick example
 
 ```python
 import numpy as np
 from drone_controllers import parametrize
 from drone_controllers.mellinger import state2attitude
 
-# Get controller parameters for a specific drone model
-controller = parametrize(state2attitude, "cf2x_L250")
+ctrl = parametrize(state2attitude, "cf2x_L250")
 
-# Define state and command
-pos = np.array([0.0, 0.0, 1.0])  # position [x, y, z]
-quat = np.array([0.0, 0.0, 0.0, 1.0])  # quaternion [x, y, z, w]
-vel = np.array([0.0, 0.0, 0.0])  # velocity [vx, vy, vz]
+pos  = np.zeros(3)
+quat = np.array([0., 0., 0., 1.])
+vel  = np.zeros(3)
+cmd  = np.zeros(13)  # [x, y, z, vx, vy, vz, ax, ay, az, yaw, rr, pr, yr]
 
-# Command: [x, y, z, vx, vy, vz, ax, ay, az, yaw, r_rate, p_rate, y_rate]
-cmd = np.array([1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-
-# Compute control output
-rpyt, pos_err_i = controller(pos, quat, vel, cmd)
-print(f"Roll-Pitch-Yaw-Thrust command: {rpyt}")
+rpyt, int_pos_err = ctrl(pos, quat, vel, cmd)
 ```
 
-## Key Features
+## Supported controllers
 
-### Implemented Controllers
+| Controller | Module | Description |
+|---|---|---|
+| Mellinger | `drone_controllers.mellinger` | Geometric tracking controller based on the Crazyflie firmware [[1]](#references) |
 
-- **[Mellinger Controller](api/mellinger.md)** — Geometric tracking controller based on the original Crazyflie implementation
+Controllers are implemented as plain Python functions, so adding a new one requires no registration or subclassing. Contributions are welcome; see the [GitHub repository](https://github.com/learnsyslab/drone-controllers) to get started.
 
-### Supported Drone Models
+## Getting help
 
-- **cf2x_L250** — Crazyflie 2.x with 250mm frame
-- More models coming soon!
+- [Get Started](getting-started/installation.md): install the package
+- [User Guide](user-guide/controllers.md): how everything fits together
+- [Examples](examples/index.md): progressive runnable examples
+- [API Reference](api/core.md): complete function signatures
+- [GitHub Issues](https://github.com/learnsyslab/drone-controllers/issues): bug reports and feature requests
 
-### Core Functionality
+## References
 
-- **[Parameter System](api/core.md)** — Automatic controller parametrization for different drone models
-- **[Transform utilities](api/transform.md)** — Conversions between motor forces, rotor speeds, and PWM
-- **[Drone registry](api/drones.md)** — Centralized catalog of supported drone platforms
-
-## Controller Architecture
-
-The library implements controllers as a pipeline of pure functions:
-
-1. **State → Attitude**: Convert desired state to attitude commands
-2. **Attitude → Force/Torque**: Convert attitude commands to desired forces and torques  
-3. **Force/Torque → Rotor Speeds**: Convert desired forces/torques to individual motor commands
-
-This modular design allows mixing and matching different components while maintaining compatibility.
-
-## Array API Compatibility
-
-All controllers support the Python Array API standard, meaning you can use them with:
-
-- **NumPy** — Standard numerical computing
-- **JAX** — JIT compilation and automatic differentiation
-- **PyTorch** — Deep learning integration
-- **CuPy** — GPU acceleration
-
-## Getting Help
-
-- Read the [Getting Started](getting-started/installation.md) guide
-- Browse the [API Reference](api/core.md)
-- Report issues on [GitHub](https://github.com/learnsyslab/drone-controllers/issues)
+[1] D. Mellinger and V. Kumar, "Minimum snap trajectory generation and control for quadrotors," ICRA 2011, doi: 10.1109/ICRA.2011.5980409.

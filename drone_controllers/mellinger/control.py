@@ -1,4 +1,13 @@
-"""..."""
+"""Mellinger controller reimplementation based on the Crazyflie firmware.
+
+The controller is split into three pure functions that form a pipeline:
+``state2attitude`` → ``attitude2force_torque`` → ``force_torque2rotor_vel``.
+Each stage can be used independently or chained together to produce per-motor
+RPM commands from a full-state setpoint.
+
+Reference: D. Mellinger and V. Kumar, "Minimum snap trajectory generation and
+control for quadrotors", ICRA 2011.
+"""
 
 from __future__ import annotations
 
